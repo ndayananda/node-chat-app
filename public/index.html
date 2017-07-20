@@ -15,5 +15,18 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <p>Welcome to NodeJS Chat App</p>
+        <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        <script>
+            (function(global, undefined) {
+                var socket = io();
+                socket.on('connect', () => {
+                    console.log('Connected to server');
+                });
+
+                socket.on('disconnect', () => {
+                    console.log('Disconnected from server');
+                })
+            })(window);
+        </script>
     </body>
 </html>
