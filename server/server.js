@@ -20,10 +20,22 @@ const io = socketIO(server);
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-    console.log('New user connected');
+    // socket.emit will emit event to particular connection
+    socket.emit('newMessage', {
+        from: 'Admin',
+        text: 'Welcome to the chat app',
+        createdAt: new Date().getTime()
+    });
+
+    // socket.broadcast.emit will emit event to all the connection except the one emitting
+    socket.broadcast.emit('newMessage', {
+        from: 'Admin',
+        text: 'new user joined',
+        createdAt: new Date().getTime()
+    });
 
     socket.on('createMessage', function(msg) {
-        console.log('Create Message: ', msg);
+        // io.emit will emit event to all
         io.emit('newMessage', {
             from: msg.from,
             text: msg.text,
