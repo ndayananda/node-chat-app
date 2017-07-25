@@ -28,9 +28,14 @@ io.on('connection', (socket) => {
     // socket.broadcast.emit will emit event to all the connection except the one emitting
     socket.broadcast.emit('newMessage', generateMessage('Admin', 'new user joined'));
 
-    socket.on('createMessage', function(msg) {
+    socket.on('createMessage', function(msg, callback) {
         // io.emit will emit event to all
         io.emit('newMessage', generateMessage(msg.from, msg.text));
+        if(callback && typeof callback === 'function')
+            callback({
+                success: true,
+                data: 'Successfully created a message'
+            });
     });
 
     socket.on('disconnect', () => {

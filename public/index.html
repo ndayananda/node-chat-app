@@ -15,7 +15,15 @@
             <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="#">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
         <p>Welcome to NodeJS Chat App</p>
+
+        <ol id="messages"></ol>
+
+        <form id="message-form">
+            <input type="text" name="message" placeholder="Message goes here" />
+            <button>Send</button>
+        </form>
         <script type="text/javascript" src="/socket.io/socket.io.js"></script>
+        <script type="text/javascript" src="/js/libs//jquery-3.2.1.min.js"></script>
         <script type="text/javascript" src="/js/index.js"></script>
     </body>
 </html>
