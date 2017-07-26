@@ -4,17 +4,21 @@
         console.log('Connected to server');
 
         socket.on('newMessage', function(msg) {
+            var formattedTime = moment(msg.createdAt).format('h:mm a');
+
             var li = $('<li>');
-            li.text(msg.from + ': ' + msg.text);
+            li.text(msg.from + ' ' + formattedTime + ': ' + msg.text);
             $('#messages').append(li);
         });
 
         socket.on('newLocationMessage', function(locationInfo) {
+            var formattedTime = moment(locationInfo.createdAt).format('h:mm a');
+
             var li = $('<li>');
             var link = $('<a target="_blank">My Current Location</a>');
             link.attr('href', locationInfo.url);
 
-            li.text(locationInfo.from + ': ');
+            li.text(locationInfo.from + ' ' + formattedTime + ': ');
             li.append(link);
             $('#messages').append(li);
         });

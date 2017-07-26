@@ -1,5 +1,7 @@
+const moment = require('moment');
+
 const getCurrentTimeStamp = () => {
-    return new Date().getTime();
+    return moment().valueOf();
 }
 
 const generateMessage = (from, text) => {
