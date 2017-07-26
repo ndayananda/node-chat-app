@@ -4,23 +4,11 @@
         console.log('Connected to server');
 
         socket.on('newMessage', function(msg) {
-            var formattedTime = moment(msg.createdAt).format('h:mm a');
-
-            var li = $('<li>');
-            li.text(msg.from + ' ' + formattedTime + ': ' + msg.text);
-            $('#messages').append(li);
+            renderTemplate(msg);
         });
 
         socket.on('newLocationMessage', function(locationInfo) {
-            var formattedTime = moment(locationInfo.createdAt).format('h:mm a');
-
-            var li = $('<li>');
-            var link = $('<a target="_blank">My Current Location</a>');
-            link.attr('href', locationInfo.url);
-
-            li.text(locationInfo.from + ' ' + formattedTime + ': ');
-            li.append(link);
-            $('#messages').append(li);
+            renderTemplate(locationInfo);
         });
     });
 
@@ -63,4 +51,21 @@
             $button.removeAttr('disabled').text('Send location');
         });
     });
+
+    function renderTemplate(data) {
+        var formattedTime, template, html;
+        
+        formattedTime = moment(data.createdAt).format('h:mm a');
+
+        template = $('#message-template').html();
+
+        html = Mustache.render(template, {
+            from: data.from,
+            text: data.text,
+            createdAt: formattedTime,
+            url: data.url
+        });
+        
+        $('#messages').append(html);
+    }
 })(window, jQuery);
