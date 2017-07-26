@@ -3,7 +3,7 @@ const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
 
-const {generateMessage} = require('./utils/message');
+const {generateMessage, generateLocationMessage} = require('./utils/message');
 
 const publicPath = path.join(__dirname, '../public');
 const app = express();
@@ -34,7 +34,17 @@ io.on('connection', (socket) => {
         if(callback && typeof callback === 'function')
             callback({
                 success: true,
-                data: 'Successfully created a message'
+                data: 'Successfully created a message!'
+            });
+    });
+
+    socket.on('createLocationMessage', (coords, callback) => {
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+
+        if(callback && typeof callback === 'function')
+            callback({
+                success: true,
+                data: 'Successfully created location message!'
             });
     });
 
