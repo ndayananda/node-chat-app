@@ -1,7 +1,14 @@
 (function(global, $, undefined) {
     var socket = io();
     socket.on('connect', function() {
-        console.log('Connected to server');
+        var params = $.deparam(window.location.search);
+
+        socket.emit('join', params, function(result) {
+            if(!result.success) {
+                window.location = '/';
+                alert(result.data);
+            }
+        });
 
         socket.on('newMessage', function(msg) {
             renderTemplate(msg);
@@ -9,6 +16,16 @@
 
         socket.on('newLocationMessage', function(locationInfo) {
             renderTemplate(locationInfo);
+        });
+
+        socket.on('updateUserList', function(usersList) {
+            var ol = $('<ol>');
+
+            usersList.forEach(function(user) {
+                ol.append($('<li>').text(user));
+            });
+
+            $('#users').html(ol);
         });
     });
 

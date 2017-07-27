@@ -2,8 +2,10 @@ const path = require('path');
 const http = require('http');
 const express = require('express');
 const socketIO = require('socket.io');
+const _ = require('lodash');
 
 const {generateMessage, generateLocationMessage} = require('./utils/message');
+const {Users} = require('./utils/users');
 
 const publicPath = path.join(__dirname, '../public');
 const app = express();
@@ -19,16 +21,39 @@ const server = http.createServer(app);
 // After creating the server, we need to pass it to socketIO
 const io = socketIO(server);
 
+// Create a instanse of Users to keep the users list
+const users = new Users();
+
 app.use(express.static(publicPath));
 
 io.on('connection', (socket) => {
-    // socket.emit will emit event to particular connection
-    socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+    socket.on('join', (params, callback) => {
+        if( _.isEmpty(params.name) || _.isEmpty(params.room) ) {
+            callback({
+                success: false,
+                data: 'Name and Room Name are required!'
+            });
+        }
 
-    // socket.broadcast.emit will emit event to all the connection except the one emitting
-    socket.broadcast.emit('newMessage', generateMessage('Admin', 'new user joined'));
+        callback({
+            success: true,
+            data: params.name + ' joined room'
+        });
 
-    socket.on('createMessage', function(msg, callback) {
+        socket.join(params.room); // creates a seperate room / adds if already exits one for tracking
+        users.removeUser(socket.id); // Remove the user from other rooms if exists
+        users.addUser(socket.id, params.name, params.room);
+
+        // io.to(params.room).emit will emit event to all in the provided room
+        io.to(params.room).emit('updateUserList', users.getUsersList(params.room));
+
+        socket.emit('newMessage', generateMessage('Admin', 'Welcome to the chat app'));
+
+        // socket.broadcast.emit will emit event to all in the provided room except the one emitting
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+    });
+
+    socket.on('createMessage', (msg, callback) => {
         // io.emit will emit event to all
         io.emit('newMessage', generateMessage(msg.from, msg.text));
         if(callback && typeof callback === 'function')
@@ -49,7 +74,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('disconnect', () => {
-        console.log('Disconnected from client');
+        var user = users.removeUser(socket.id);
+
+        if(user) {
+            io.to(user.room).emit('updateUserList', users.getUsersList(user.room));
+            io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} has left.`));            
+        }
     });
 });
 
