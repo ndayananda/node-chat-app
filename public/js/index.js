@@ -67,5 +67,20 @@
         });
         
         $('#messages').append(html);
+        scrollToBottom();
+    }
+
+    function scrollToBottom() {
+        var messages = $('#messages'),
+            newMessage = messages.children('li:last-child');
+
+        var clientHeight = messages.prop('clientHeight'),
+            scrollTop = messages.prop('scrollTop'),
+            scrollHeight = messages.prop('scrollHeight'),
+            newMessageHeight = newMessage.innerHeight(),
+            prevMessageHeight = newMessage.prev().innerHeight();
+
+            if(clientHeight + scrollTop + newMessageHeight + prevMessageHeight >= scrollHeight)
+                messages.scrollTop(scrollHeight);
     }
 })(window, jQuery);
