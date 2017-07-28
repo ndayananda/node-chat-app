@@ -54,8 +54,13 @@ io.on('connection', (socket) => {
     });
 
     socket.on('createMessage', (msg, callback) => {
-        // io.emit will emit event to all
-        io.emit('newMessage', generateMessage(msg.from, msg.text));
+        var user = users.getUser(socket.id);
+        if(user && !_.isEmpty(msg.text)) {
+            // io.emit will emit event to all
+            io.to(user.room).emit('newMessage', generateMessage(user.name, msg.text));
+        }
+
+        
         if(callback && typeof callback === 'function')
             callback({
                 success: true,
@@ -64,7 +69,11 @@ io.on('connection', (socket) => {
     });
 
     socket.on('createLocationMessage', (coords, callback) => {
-        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
+        var user = users.getUser(socket.id);
+        if(user) {
+            // io.emit will emit event to all
+            io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
+        }
 
         if(callback && typeof callback === 'function')
             callback({

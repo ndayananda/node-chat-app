@@ -38,7 +38,6 @@
         var input = $('[name=message]');
 
         socket.emit('createMessage', {
-            from: 'User',
             text: input.val()
         }, function(result) {
             if(result.success) 
